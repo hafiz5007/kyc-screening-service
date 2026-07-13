@@ -1,0 +1,10 @@
+# Dev profile: turn off JWT resource-server so you can hit the API with curl
+# without needing an identity provider running.
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+  security:
+    user:
+      name: dev
+      password: dev

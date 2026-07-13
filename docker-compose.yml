@@ -1,0 +1,34 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: kyc-mongo
+    ports: ["27017:27017"]
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build: .
+    container_name: kyc-api
+    ports: ["8080:8080"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - MONGO_URI=mongodb://mongo:27017/kyc
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: kyc-prom
+    ports: ["9090:9090"]
+    volumes:
+      - ./docs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on: [api]
+
+volumes:
+  mongo_data:
